@@ -1,0 +1,19 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+Description: Podnanza
+
+Resources:
+  Podcast:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ''
+      Handler: Podnanza::Podnanza.LambdaEntryPoint::FunctionHandlerAsync
+      Runtime: dotnetcore2.1
+      MemorySize: 1024
+      Timeout: 60
+      Events:
+        GetPodCast:
+          Type: Api
+          Properties:
+            Path: '/{proxy+}'
+            Method: any
