@@ -71,8 +71,12 @@ namespace Podnanza.Parsing
                 AudioUri = audioUri,
                 AudioFileLength = await GetAudioFileLength(audioUri),
                 Description = HtmlEntity.DeEntitize(GetEpisodeInfo(node, "Programinfo"))
-                    .Replace("\t", "").Replace("\n", "").Replace("\r",""),
-                Title = HtmlEntity.DeEntitize(node.SelectSingleNode("//h1").InnerText),
+                    .Replace("\t", "").Replace("\n", "").Replace("\r","")
+                    .Replace("B&U - BørneRadio - P3 - ", ""),
+                Title = HtmlEntity.DeEntitize(node.SelectSingleNode("//h1").InnerText)
+                    .Replace("Børneradio: ", "")
+                    .Replace("Børneradio - ", "")
+                    .Replace("Radioteatret: ", ""),
                 Published = published,
                 Duration = TimeSpan.Parse(GetEpisodeInfo(node, "Tid")),
                 Author = GetEpisodeInfo(node, "Medvirkende").TrimEnd(new char[] { ';', '.' }),
