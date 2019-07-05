@@ -1,4 +1,5 @@
 {
+  "$schema": "http://json.schemastore.org/launchsettings.json",
   "iisSettings": {
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
@@ -8,21 +9,16 @@
     }
   },
   "profiles": {
-    "IIS Express": {
-      "commandName": "IISExpress",
-      "launchBrowser": true,
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      }
-    },
     "Podnanza": {
       "commandName": "Project",
       "launchBrowser": true,
+      "launchUrl": "p/302",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "applicationUrl": "http://localhost:61491/"
-    },
+    }
+    ,
     "Mock Lambda Test Tool": {
       "commandName": "Executable",
       "commandLineArgs": "--port 5050",
