@@ -15,7 +15,7 @@ namespace Podnanza.Parsing
         private static readonly string itemUrlXPath = "(//div[contains(@class, 'list-content')])[1]//div[contains(@class, 'items')]//div[contains(@class, 'item')]/a";
         private static readonly string titleXPath = "(//div[contains(@class, 'list-title')])[1]//h2";
         private static readonly string audioXPath = "//audio/source";
-        private static readonly string dataXPathFormat = "(//div[@class='row' and div[text()='{0}:']])[1]/div[contains(@class, 'asset-body')]/p";
+        private static readonly string dataXPathFormat = "(//div[@class='row' and div[normalize-space()='{0}:']])[1]/div[contains(@class, 'asset-body')]/p";
         private static readonly string canonicalUrlXPath = "//head/link[@rel='canonical']";
 
         public Bonanza(HttpClient httpClient)
@@ -31,12 +31,20 @@ namespace Podnanza.Parsing
             document.LoadHtml(pageContents);
             var node = document.DocumentNode;
 
-            return new Series
+            var result = new Series
             {
-                Title = node.SelectSingleNode(titleXPath).InnerText,
+                Title = node.SelectSingleNode(titleXPath).InnerText.Replace("Episoder:", "").Trim(),
                 Url = node.SelectSingleNode(canonicalUrlXPath).Attributes["href"].Value,
                 Episodes = await GetEpisodes(node)
             };
+
+            // if all episodes have the same author, use that
+            if (result.Episodes.Select(x => x.Author).Distinct().Count() == 1)
+            {
+                result.Author = result.Episodes.First().Author;
+            }
+
+            return result;
         }
 
         private async Task<IEnumerable<Episode>> GetEpisodes(HtmlNode node)
@@ -79,13 +87,13 @@ namespace Podnanza.Parsing
                     .Replace("Radioteatret: ", ""),
                 Published = published,
                 Duration = TimeSpan.Parse(GetEpisodeInfo(node, "Tid")),
-                Author = GetEpisodeInfo(node, "Medvirkende").TrimEnd(new char[] { ';', '.' }),
+                Author = GetEpisodeInfo(node, "Medvirkende")?.TrimEnd(new char[] { ';', '.' }) ?? null,
             };
         }
 
         private string GetEpisodeInfo(HtmlNode node, string label)
         {
-            return node.SelectSingleNode(string.Format(dataXPathFormat, label)).InnerText;
+            return node.SelectSingleNode(string.Format(dataXPathFormat, label))?.InnerText ?? null;
         }
 
         private async Task<long> GetAudioFileLength(Uri uri)

@@ -52,8 +52,8 @@ namespace Podnanza.Controllers
                 await feedWriter.Write(new SyndicationContent("subtitle", _itunesNs,
                     $"{series.Title} fra DR Bonanza, podcastet af Podnanza" ));
                 await feedWriter.Write(new SyndicationLink(new Uri(series.Url)));
-                await feedWriter.Write(new SyndicationContent("author", _itunesNs,
-                    series.Episodes.First().Author));
+                if (series.Author != null)
+                    await feedWriter.Write(new SyndicationContent("author", _itunesNs, series.Author));
                 await feedWriter.Write(new SyndicationContent("summary", _itunesNs,
                     series.Episodes.First().Description));
 
