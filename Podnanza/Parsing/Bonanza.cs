@@ -44,6 +44,12 @@ namespace Podnanza.Parsing
                 result.Author = result.Episodes.First().Author;
             }
 
+            // if all episodes have the same description, use that
+            if (result.Episodes.Select(x => x.Description).Distinct().Count() == 1)
+            {
+                result.Description = result.Episodes.First().Description;
+            }
+
             return result;
         }
 
