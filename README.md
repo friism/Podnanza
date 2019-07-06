@@ -11,7 +11,7 @@ The Podnanza software can run as a "normal" ASP.NET Core app or on AWS Lambda. T
 * [SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html)
  * [AWS .NET Core CLI](https://docs.aws.amazon.com/lambda/latest/dg/lambda-dotnet-coreclr-deployment-package.html)
 
-Once logged in and set up, run this command in the `Podnanza` project folder:
+Once logged in and set up, run this command in the `Podnanza` project folder to deploy a new version:
 
 ```
 dotnet lambda deploy-serverless --region eu-north-1 --s3-bucket podnanza --stack-name Podnanza .
