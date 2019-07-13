@@ -101,7 +101,7 @@ namespace Podnanza.Controllers
             await feedWriter.WriteGenerator("Podnanza");
             await feedWriter.Write(GetOwner());
             await feedWriter.Write(GetLogo());
-            //await feedWriter.Write(GetCategory());
+            await feedWriter.Write(GetCategory());
             await feedWriter.WriteLanguage(_daCulture);
             await feedWriter.Write(new SyndicationContent("language", _itunesNs, $"{_daCulture}"));
             await feedWriter.Write(new SyndicationContent("explicit", _itunesNs, "no"));
@@ -117,13 +117,13 @@ namespace Podnanza.Controllers
             return logoContent;
         }
 
-        //private ISyndicationContent GetCategory()
-        //{
-        //    var logoContent = new SyndicationContent("category", _itunesNs, null);
-        //    logoContent.AddAttribute(new SyndicationAttribute("text", "Kids & Family"));
+        private ISyndicationContent GetCategory()
+        {
+            var logoContent = new SyndicationContent("category", _itunesNs, null);
+            logoContent.AddAttribute(new SyndicationAttribute("text", "Kids & Family"));
 
-        //    return logoContent;
-        //}
+            return logoContent;
+        }
 
         private ISyndicationContent GetOwner()
         {
