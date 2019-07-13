@@ -38,23 +38,6 @@ namespace Podnanza.Parsing
                 Episodes = await GetEpisodes(node)
             };
 
-            // if all episodes have the same author, use that
-            var authors = result.Episodes.SelectMany(x => x.Authors).Distinct();
-            if (authors.Count() == 1)
-            {
-                result.Author = authors.Single();
-            }
-            else
-            {
-                result.Author = string.Join(", ", authors);
-            }
-
-            // if all episodes have the same description, use that
-            if (result.Episodes.Select(x => x.Description).Distinct().Count() == 1)
-            {
-                result.Description = result.Episodes.First().Description;
-            }
-
             return result;
         }
 
