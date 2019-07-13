@@ -29,64 +29,71 @@ namespace Podnanza.Controllers
         [HttpHead("{id}")]
         public async Task Get(int id)
         {
-            Response.ContentType = "application/rss+xml";
+            try
+            {
+                var series = await new Bonanza(_httpClient).GetSeries(id);
+                Response.ContentType = "application/rss+xml";
 
-            using (var xmlWriter = XmlWriter.Create(Response.Body, new XmlWriterSettings()
-            {
-                Async = true,
-                Encoding = Encoding.UTF8
-            }))
-            {
-                var attributes = new List<SyndicationAttribute>()
+                using (var xmlWriter = XmlWriter.Create(Response.Body, new XmlWriterSettings()
+                {
+                    Async = true,
+                    Encoding = Encoding.UTF8
+                }))
+                {
+                    var attributes = new List<SyndicationAttribute>()
                 {
                     new SyndicationAttribute("xmlns:itunes", _itunesNs),
                 };
-                var formatter = new RssFormatter(attributes, xmlWriter.Settings);
-                var feedWriter = new RssFeedWriter(xmlWriter, attributes, formatter);
+                    var formatter = new RssFormatter(attributes, xmlWriter.Settings);
+                    var feedWriter = new RssFeedWriter(xmlWriter, attributes, formatter);
 
-                await WriteFeedPreamble(feedWriter);
+                    await WriteFeedPreamble(feedWriter);
 
-                var series = await new Bonanza(_httpClient).GetSeries(id);
+                    await feedWriter.WriteTitle(series.Title);
+                    await feedWriter.Write(new SyndicationContent("subtitle", _itunesNs,
+                        $"{series.Title} fra DR Bonanza, podcastet af Podnanza"));
+                    await feedWriter.Write(new SyndicationLink(new Uri(series.Url)));
+                    if (series.Author != null)
+                        await feedWriter.Write(new SyndicationContent("author", _itunesNs, series.Author));
+                    if (series.Description != null)
+                        await feedWriter.Write(new SyndicationContent("summary", _itunesNs, series.Description));
 
-                await feedWriter.WriteTitle(series.Title);
-                await feedWriter.Write(new SyndicationContent("subtitle", _itunesNs,
-                    $"{series.Title} fra DR Bonanza, podcastet af Podnanza" ));
-                await feedWriter.Write(new SyndicationLink(new Uri(series.Url)));
-                if (series.Author != null)
-                    await feedWriter.Write(new SyndicationContent("author", _itunesNs, series.Author));
-                if (series.Description != null)
-                    await feedWriter.Write(new SyndicationContent("summary", _itunesNs, series.Description));
-
-                foreach (var x in series.Episodes.OrderBy(x => x.Published)
-                    .Select((value, i) => new { i, value } ))
-                {
-                    var episode = x.value;
-
-                    var item = new SyndicationItem
+                    foreach (var x in series.Episodes.OrderBy(x => x.Published)
+                        .Select((value, i) => new { i, value }))
                     {
-                        Title = episode.Title,
-                        Description = episode.Description,
-                        Published = episode.Published,
-                        Id = $"{episode.WebUri}",
-                    };
+                        var episode = x.value;
 
-                    item.AddLink(new SyndicationLink(episode.AudioUri, RssLinkTypes.Enclosure)
-                    {
-                        MediaType = "audio/mpeg",
-                        Length = episode.AudioFileLength,
-                    });
-                    item.AddLink(new SyndicationLink(episode.WebUri));
+                        var item = new SyndicationItem
+                        {
+                            Title = episode.Title,
+                            Description = episode.Description,
+                            Published = episode.Published,
+                            Id = $"{episode.WebUri}",
+                        };
 
-                    var content = new SyndicationContent(formatter.CreateContent(item));
-                    content.AddField(new SyndicationContent("summary", _itunesNs, episode.Description));
-                    content.AddField(new SyndicationContent("author", _itunesNs, episode.Author));
-                    content.AddField(new SyndicationContent("duration", _itunesNs,
-                        episode.Duration.ToString(@"hh\:mm\:ss")));
-                    content.AddField(new SyndicationContent("explicit", _itunesNs, "no"));
-                    content.AddField(new SyndicationContent("episode", _itunesNs, $"{x.i + 1}"));
-                    content.AddField(new SyndicationContent("language", _itunesNs, $"{_daCulture}"));
-                    await feedWriter.Write(content);
+                        item.AddLink(new SyndicationLink(episode.AudioUri, RssLinkTypes.Enclosure)
+                        {
+                            MediaType = "audio/mpeg",
+                            Length = episode.AudioFileLength,
+                        });
+                        item.AddLink(new SyndicationLink(episode.WebUri));
+
+                        var content = new SyndicationContent(formatter.CreateContent(item));
+                        content.AddField(new SyndicationContent("summary", _itunesNs, episode.Description));
+                        content.AddField(new SyndicationContent("author", _itunesNs, string.Join(", ", episode.Authors)));
+                        content.AddField(new SyndicationContent("duration", _itunesNs,
+                            episode.Duration.ToString(@"hh\:mm\:ss")));
+                        content.AddField(new SyndicationContent("explicit", _itunesNs, "no"));
+                        content.AddField(new SyndicationContent("episode", _itunesNs, $"{x.i + 1}"));
+                        content.AddField(new SyndicationContent("language", _itunesNs, $"{_daCulture}"));
+                        await feedWriter.Write(content);
+                    }
                 }
+            }
+            catch (SeriesNotFoundException)
+            {
+                Response.StatusCode = 404;
+                return;
             }
         }
 
@@ -96,7 +103,7 @@ namespace Podnanza.Controllers
             await feedWriter.WriteGenerator("Podnanza");
             await feedWriter.Write(GetOwner());
             await feedWriter.Write(GetLogo());
-            await feedWriter.Write(GetCategory());
+            //await feedWriter.Write(GetCategory());
             await feedWriter.WriteLanguage(_daCulture);
             await feedWriter.Write(new SyndicationContent("language", _itunesNs, $"{_daCulture}"));
             await feedWriter.Write(new SyndicationContent("explicit", _itunesNs, "no"));
@@ -112,13 +119,13 @@ namespace Podnanza.Controllers
             return logoContent;
         }
 
-        private ISyndicationContent GetCategory()
-        {
-            var logoContent = new SyndicationContent("category", _itunesNs, null);
-            logoContent.AddAttribute(new SyndicationAttribute("text", "Kids & Family"));
+        //private ISyndicationContent GetCategory()
+        //{
+        //    var logoContent = new SyndicationContent("category", _itunesNs, null);
+        //    logoContent.AddAttribute(new SyndicationAttribute("text", "Kids & Family"));
 
-            return logoContent;
-        }
+        //    return logoContent;
+        //}
 
         private ISyndicationContent GetOwner()
         {

@@ -39,9 +39,14 @@ namespace Podnanza.Parsing
             };
 
             // if all episodes have the same author, use that
-            if (result.Episodes.Select(x => x.Author).Distinct().Count() == 1)
+            var authors = result.Episodes.SelectMany(x => x.Authors).Distinct();
+            if (authors.Count() == 1)
             {
-                result.Author = result.Episodes.First().Author;
+                result.Author = authors.Single();
+            }
+            else
+            {
+                result.Author = string.Join(", ", authors);
             }
 
             // if all episodes have the same description, use that
@@ -56,6 +61,11 @@ namespace Podnanza.Parsing
         private async Task<IEnumerable<Episode>> GetEpisodes(HtmlNode node)
         {
             var itemLinks = node.SelectNodes(itemUrlXPath);
+            if (itemLinks is null)
+            {
+                throw new SeriesNotFoundException();
+            }
+
             var tasks = itemLinks.Select(
                 i => GetEpisode(string.Format("https://www.dr.dk{0}", i.Attributes["href"].Value)));
             return await Task.WhenAll(tasks);
@@ -93,8 +103,24 @@ namespace Podnanza.Parsing
                     .Replace("Radioteatret: ", ""),
                 Published = published,
                 Duration = TimeSpan.Parse(GetEpisodeInfo(node, "Tid")),
-                Author = GetEpisodeInfo(node, "Medvirkende")?.TrimEnd(new char[] { ';', '.' }) ?? null,
+                Authors = GetAuthors(node),
             };
+        }
+
+        private IEnumerable<string> GetAuthors(HtmlNode node)
+        {
+            var authorValueString = GetEpisodeInfo(node, "Medvirkende")?.TrimEnd(new char[] { ';', '.' });
+            if(string.IsNullOrWhiteSpace(authorValueString))
+            {
+                yield break;
+            }
+
+            var authors = authorValueString.Split(new string[] { ";", " og " }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(x => x.Trim()).Where(x => !string.IsNullOrWhiteSpace(x));
+            foreach (var author in authors)
+            {
+                yield return author;
+            }
         }
 
         private string GetEpisodeInfo(HtmlNode node, string label)

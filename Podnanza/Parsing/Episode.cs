@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Podnanza.Parsing
 {
@@ -10,7 +11,7 @@ namespace Podnanza.Parsing
         public Uri AudioUri { get; set; }
         public TimeSpan Duration { get; set; }
         public DateTime Published { get; set; }
-        public string Author { get; internal set; }
+        public IEnumerable<string> Authors { get; internal set; }
         public long AudioFileLength { get; internal set; }
     }
 }
