@@ -27,9 +27,10 @@ namespace Podnanza.Parsing
             get
             {
                 // if all episodes have the same description, use that
-                if (Episodes.Select(x => x.Description).Distinct().Count() == 1)
+                var descriptions = Episodes.Select(x => x.Description).Distinct();
+                if (descriptions.Count() == 1)
                 {
-                    return Episodes.Single().Description;
+                    return descriptions.Single();
                 }
                 else
                 {
