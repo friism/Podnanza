@@ -6,6 +6,11 @@ namespace Podnanza.Parsing
     public class Series
     {
         public string Title { get; set; }
+        public string SubTitle { get
+            {
+                return $"{Title} fra DR Bonanza, podcastet af Podnanza";
+            }
+        }
         public string Author
         {
             get
@@ -34,7 +39,7 @@ namespace Podnanza.Parsing
                 }
                 else
                 {
-                    return Title;
+                    return $"En serie af radioprogrammer med titlen \"{Title}\" fra DR Bonanza arkivet. Podcasten er automatisk genereret af Podnanza.";
                 }
             }
         }
