@@ -9,7 +9,7 @@ The Podnanza software can run as a "normal" ASP.NET Core app or on AWS Lambda. T
 
 * [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/install-windows.html)
 * [SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html)
- * [AWS .NET Core CLI](https://docs.aws.amazon.com/lambda/latest/dg/lambda-dotnet-coreclr-deployment-package.html)
+* [AWS .NET Core CLI](https://docs.aws.amazon.com/lambda/latest/dg/lambda-dotnet-coreclr-deployment-package.html)
 
 Once logged in and set up, run this command in the `Podnanza` project folder to deploy a new version:
 
