@@ -14,7 +14,7 @@ namespace Podnanza.Parsing
 
         private static readonly string itemUrlXPath = "(//div[contains(@class, 'list-content')])[1]//div[contains(@class, 'items')]//div[contains(@class, 'item')]/a";
         private static readonly string titleXPath = "(//div[contains(@class, 'list-title')])[1]//h2";
-        private static readonly string audioXPath = "//audio/source";
+        private static readonly string mediaXPath = "//source";
         private static readonly string dataXPathFormat = "(//div[@class='row' and div[normalize-space()='{0}:']])[1]/div[contains(@class, 'asset-body')]/p";
         private static readonly string canonicalUrlXPath = "//head/link[@rel='canonical']";
 
@@ -65,18 +65,21 @@ namespace Podnanza.Parsing
             var published = DateTime.Parse(GetEpisodeInfo(node, "Sendt"),
                 CultureInfo.CreateSpecificCulture("da-DK"));
 
-            var audioUri =
-                (new UriBuilder(node.SelectSingleNode(audioXPath).Attributes["src"].Value) {
+            var mediaNode = node.SelectSingleNode(mediaXPath);
+            var mediaUri =
+                (new UriBuilder(mediaNode.Attributes["src"].Value) {
                     Scheme = "https",
                     Port = -1
                 })
                 .Uri;
+            var mediaType = mediaNode.Attributes["type"].Value;
 
             return new Episode
             {
                 WebUri = new Uri(url),
-                AudioUri = audioUri,
-                AudioFileLength = await GetAudioFileLength(audioUri),
+                MediaUri = mediaUri,
+                MediaType = mediaType,
+                FileLength = await GetFileLength(mediaUri),
                 Description = HtmlEntity.DeEntitize(GetEpisodeInfo(node, "Programinfo"))
                     .Replace("\t", "").Replace("\n", "").Replace("\r","")
                     .Replace("B&U - BørneRadio - P3 - ", ""),
@@ -111,7 +114,7 @@ namespace Podnanza.Parsing
             return node.SelectSingleNode(string.Format(dataXPathFormat, label))?.InnerText ?? null;
         }
 
-        private async Task<long> GetAudioFileLength(Uri uri)
+        private async Task<long> GetFileLength(Uri uri)
         {
             using (var request = new HttpRequestMessage(HttpMethod.Head, uri))
             using (var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead))

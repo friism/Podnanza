@@ -68,10 +68,10 @@ namespace Podnanza.Controllers
                             Id = $"{episode.WebUri}",
                         };
 
-                        item.AddLink(new SyndicationLink(episode.AudioUri, RssLinkTypes.Enclosure)
+                        item.AddLink(new SyndicationLink(episode.MediaUri, RssLinkTypes.Enclosure)
                         {
-                            MediaType = "audio/mpeg",
-                            Length = episode.AudioFileLength,
+                            MediaType = episode.MediaType,
+                            Length = episode.FileLength,
                         });
                         item.AddLink(new SyndicationLink(episode.WebUri));
 
