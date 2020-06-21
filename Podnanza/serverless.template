@@ -8,7 +8,7 @@ Resources:
     Properties:
       CodeUri: ''
       Handler: Podnanza::Podnanza.LambdaEntryPoint::FunctionHandlerAsync
-      Runtime: dotnetcore2.1
+      Runtime: dotnetcore3.1
       MemorySize: 1024
       Timeout: 60
       Events:

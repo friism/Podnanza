@@ -9,9 +9,12 @@
   ],
 
   "profile": "",
-  "region": "",
+  "region": "eu-north-1",
   "configuration": "Release",
-  "framework": "netcoreapp2.1",
   "s3-prefix": "build/",
-  "template": "serverless.template"
+  "template": "serverless.template",
+  "msbuild-parameters": "/p:PublishReadyToRun=true --self-contained false",
+  "runtime": "dotnetcore3.1",
+  "MemorySize": 1024,
+  "Timeout": 60
 }

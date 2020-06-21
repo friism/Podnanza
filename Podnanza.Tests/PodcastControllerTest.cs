@@ -16,7 +16,7 @@ namespace Podnanza.Tests
             var lambdaFunction = new LambdaEntryPoint();
 
             var requestStr = File.ReadAllText("./SampleRequests/PodcastController-Get.json");
-            var request = JsonConvert.DeserializeObject<APIGatewayProxyRequest>(requestStr);
+            var request = JsonConvert.DeserializeObject<APIGatewayHttpApiV2ProxyRequest>(requestStr);
             var context = new TestLambdaContext();
             var response = await lambdaFunction.FunctionHandlerAsync(request, context);
 

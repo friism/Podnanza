@@ -14,5 +14,11 @@ The Podnanza software can run as a "normal" ASP.NET Core app or on AWS Lambda. T
 Once logged in and set up, run this command in the `Podnanza` project folder to deploy a new version:
 
 ```
+dotnet lambda deploy-serverless --region eu-north-1 --s3-bucket podnanza --msbuild-parameters "/p:PublishReadyToRun=true --self-contained false" --stack-name Podnanza .
+```
+
+The above command requires Linux, if you're not on Linux run this:
+
+```
 dotnet lambda deploy-serverless --region eu-north-1 --s3-bucket podnanza --stack-name Podnanza .
 ```
