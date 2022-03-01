@@ -14,7 +14,7 @@
   "s3-prefix": "build/",
   "template": "serverless.template",
   "msbuild-parameters": "/p:PublishReadyToRun=true --self-contained false",
-  "runtime": "dotnetcore3.1",
+  "runtime": "dotnet6",
   "MemorySize": 1024,
   "Timeout": 60
 }

@@ -34,7 +34,7 @@ namespace Podnanza.Controllers
                 var series = await new Bonanza(_httpClient).GetSeries(id);
                 Response.ContentType = "application/rss+xml";
 
-                using (var xmlWriter = XmlWriter.Create(Response.Body, new XmlWriterSettings()
+                await using (var xmlWriter = XmlWriter.Create(Response.Body, new XmlWriterSettings()
                 {
                     Async = true,
                     Encoding = Encoding.UTF8
@@ -73,6 +73,7 @@ namespace Podnanza.Controllers
                             MediaType = episode.MediaType,
                             Length = episode.FileLength,
                         });
+
                         item.AddLink(new SyndicationLink(episode.WebUri));
 
                         var content = new SyndicationContent(formatter.CreateContent(item));

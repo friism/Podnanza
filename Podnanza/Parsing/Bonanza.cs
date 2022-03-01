@@ -119,9 +119,7 @@ namespace Podnanza.Parsing
             using (var request = new HttpRequestMessage(HttpMethod.Head, uri))
             using (var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead))
             {
-                return long.Parse(
-                    response.Content.Headers.Single(x => x.Key.Equals("content-length", StringComparison.InvariantCultureIgnoreCase))
-                    .Value.Single());
+                return response.Content.Headers.ContentLength.Value;
             }
         }
     }
