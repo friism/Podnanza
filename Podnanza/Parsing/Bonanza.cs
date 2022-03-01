@@ -31,11 +31,14 @@ namespace Podnanza.Parsing
             document.LoadHtml(pageContents);
             var node = document.DocumentNode;
 
+            // TODO: Find better way to handle the invalid episodes than returning null
+            var episodes = (await GetEpisodes(node)).Where(x => x != null);
+
             var result = new Series
             {
-                Title = node.SelectSingleNode(titleXPath).InnerText.Replace("Episoder:", "").Trim(),
+                Title = node.SelectSingleNode(titleXPath).InnerText.Replace("Episode:", "").Trim(),
                 Url = node.SelectSingleNode(canonicalUrlXPath).Attributes["href"].Value,
-                Episodes = await GetEpisodes(node)
+                Episodes = episodes,
             };
 
             return result;
@@ -73,6 +76,13 @@ namespace Podnanza.Parsing
                 })
                 .Uri;
             var mediaType = mediaNode.Attributes["type"].Value;
+
+            if (mediaType.Equals("application/x-mpegURL", StringComparison.OrdinalIgnoreCase))
+            {
+                // This is a HLS-stream-formatted video-podcast like here: https://www.dr.dk/bonanza/serie/302/montage/72403/nattevaegteren---en-gyser-uegnet-for-mindre-boern---the-night-watchman
+                // It does not have a file length, and the Podcast app doesn't know what to do with these streams
+                return null;
+            }
 
             return new Episode
             {
